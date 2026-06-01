@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workstyle Stereotype Map Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <input id="mapTitle" class="title-input" placeholder="Map title" aria-label="Map title" />
+    </div>
+    <div class="toolbar">
+      <select id="presetSelect" title="Load preset" aria-label="Load preset">
+        <option value="">Load preset…</option>
+        <optgroup label="Tech">
+          <option value="coding-agents">Coding Agents</option>
+          <option value="operating-systems">Operating Systems</option>
+          <option value="programming-languages">Programming Languages</option>
+          <option value="python-frameworks">Python Backend Frameworks</option>
+          <option value="gaming-platforms">Gaming Platforms</option>
+        </optgroup>
+        <optgroup label="Fiction">
+          <option value="naruto">Naruto</option>
+          <option value="attack-on-titan">Attack on Titan</option>
+          <option value="enterprise-captains">Star Trek — Enterprise Captains</option>
+          <option value="star-wars">Star Wars</option>
+        </optgroup>
+      </select>
+      <button id="generateBtn" title="Generate a new map with AI">Generate</button>
+      <button id="saveBtn" title="Save current map to My maps">Save</button>
+      <button id="manageMapsBtn" title="Manage saved maps" hidden>⋯</button>
+      <button id="exportBtn" title="Export as JSON">Export</button>
+      <button id="importBtn" title="Import a JSON map">Import</button>
+      <button id="clearBtn" title="Clear the map">Clear</button>
+      <button id="settingsBtn" title="OpenRouter settings">Settings</button>
+      <button id="aboutBtn" title="About this project">About</button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <h3>Elements</h3>
+      <ul id="itemList"></ul>
+      <form id="addItemForm" class="add-item">
+        <input id="newItemName" placeholder="Add element…" aria-label="New element name" />
+        <button type="submit" title="Add at center (50 on every axis)" aria-label="Add manually">+</button>
+        <button type="button" id="addAiBtn" class="ai" title="Add with AI (positions, icon and note)" aria-label="Add with AI">✨</button>
+      </form>
+      <div id="addStatus" class="status add-status" aria-live="polite"></div>
+    </aside>
+
+    <section class="content">
+      <p id="mapNotes" class="map-notes" hidden></p>
+      <div id="matchPanel" class="match-panel" aria-live="polite"></div>
+      <div id="map" class="map"></div>
+    </section>
+  </main>
+
+  <dialog id="matchDialog" aria-labelledby="matchDialogTitle">
+    <form method="dialog">
+      <h3 id="matchDialogTitle">Find your match</h3>
+      <p class="note">Describe yourself or what you need. The matcher reads the elements on the map (with their workstyle notes) and finds the best fit — or a combo of two if your needs are split.</p>
+      <textarea id="matchInput" rows="5" placeholder="e.g. I'm a senior dev. I work fast, hate when the agent asks questions, just want the diff. Sometimes I touch critical code and want a real thinking partner."></textarea>
+      <div class="match-examples">
+        <span class="examples-label">Try:</span>
+        <button type="button" class="example-btn" data-example="I'm a senior dev who works fast and hates when the agent asks too many questions. I just want clean diffs. Occasionally I work on critical code where I want a real thinking partner.">Senior dev</button>
+        <button type="button" class="example-btn" data-example="I'm learning to code. I want the agent to explain its choices and ask before making changes I might not understand.">Beginner</button>
+        <button type="button" class="example-btn" data-example="I need to refactor a large legacy codebase — many subtle decisions, lots of files. I want the agent to think carefully but not stop to ask after every step.">Refactor</button>
+      </div>
+      <div id="matchStatus" class="status"></div>
+      <div class="dialog-actions">
+        <button id="confirmMatch" value="match" class="primary">Match me</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <form method="dialog">
+      <h3 id="settingsTitle">OpenRouter settings</h3>
+      <label>API key
+        <input type="password" id="apiKeyInput" placeholder="sk-or-…" autocomplete="off" />
+      </label>
+      <label>Model
+        <input type="text" id="modelInput" placeholder="anthropic/claude-haiku-4-5" />
+      </label>
+      <div class="model-suggestions">
+        <span class="suggestions-label">Quick picks:</span>
+        <button type="button" class="model-chip" data-model="anthropic/claude-haiku-4-5">
+          <strong>Haiku 4.5</strong><span>fast default</span>
+        </button>
+        <button type="button" class="model-chip" data-model="deepseek/deepseek-v4-flash">
+          <strong>DeepSeek V4 Flash</strong><span>cheap &amp; fast</span>
+        </button>
+        <button type="button" class="model-chip" data-model="perplexity/sonar">
+          <strong>Sonar</strong><span>web-grounded · current events</span>
+        </button>
+      </div>
+      <p class="note">Any OpenRouter model ID works. Your key is saved locally in this browser (<code>localStorage</code>) and sent only to <code>openrouter.ai</code>.</p>
+      <div class="dialog-actions">
+        <button id="saveSettings" value="save" class="primary">Save</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="generateDialog" aria-labelledby="generateTitle">
+    <form method="dialog">
+      <h3 id="generateTitle">Generate a new map</h3>
+
+      <div class="warning-box" role="note">
+        <span class="warning-icon" aria-hidden="true">⚠</span>
+        <div>
+          <strong>The model produces a stereotype on purpose.</strong> It is meant for <strong>tech, fiction, products and professional roles</strong> — not for stereotyping real people by who they are. If you ask for a sensitive topic, it will redirect to a safer adjacent one and tell you it did.
+          <p class="warning-sub">For unrestricted experimentation, clone the repo locally and use your own OpenRouter key — then use the output responsibly.</p>
+        </div>
+      </div>
+
+      <label>Topic
+        <input type="text" id="topicInput" placeholder="e.g. JavaScript frameworks, Italian football coaches, Lord of the Rings…" />
+      </label>
+      <p class="note">Returns three elements positioned on the seven axes, with a one-line note explaining each placement.</p>
+      <div id="generateStatus" class="status"></div>
+      <div class="dialog-actions">
+        <button id="confirmGenerate" value="generate" class="primary">Generate stereotype</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="manageMapsDialog" aria-labelledby="manageMapsTitle">
+    <form method="dialog" class="manage-maps-dialog">
+      <div class="manage-maps-head">
+        <h3 id="manageMapsTitle">My saved maps</h3>
+        <button class="close-btn" value="close" aria-label="Close">&times;</button>
+      </div>
+      <p class="note">Maps you generate with AI are saved here automatically. Use <strong>Save</strong> to keep a hand-built map.</p>
+      <ul id="manageMapsList" class="saved-map-list"></ul>
+      <p id="manageMapsEmpty" class="note small" hidden>No saved maps yet. Generate one, or click Save to keep the current map here.</p>
+    </form>
+  </dialog>
+
+  <dialog id="saveDialog" aria-labelledby="saveDialogTitle">
+    <form method="dialog">
+      <h3 id="saveDialogTitle">Save map</h3>
+      <label>Name
+        <input type="text" id="saveTitleInput" placeholder="My map" />
+      </label>
+      <p class="note">The map will appear under <strong>My maps</strong> in the dropdown. Future edits sync automatically.</p>
+      <div id="saveStatus" class="status"></div>
+      <div class="dialog-actions">
+        <button id="confirmSave" value="save" class="primary">Save</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="aboutDialog" aria-labelledby="aboutDialogTitle">
+    <form method="dialog" class="about-dialog">
+      <div class="about-dialog-head">
+        <h3 id="aboutDialogTitle">Workstyle Stereotype Map Builder</h3>
+        <button class="close-btn" value="close" aria-label="Close">&times;</button>
+      </div>
+
+      <p class="about-lead">A playful experiment for visual reasoning. Place "actors" — coding agents, fictional characters, languages, operating systems — on seven behavioral axes, then ask the matcher to find what fits you.</p>
+
+      <section class="about-section">
+        <h4>How to use it</h4>
+        <ul>
+          <li>Pick a preset from the dropdown, or add your own elements.</li>
+          <li>Drag dots along each axis to position elements.</li>
+          <li>Click an <strong>icon</strong> for the bio and per-axis scores.</li>
+          <li>Click an <strong>axis name</strong> to see what that axis actually means.</li>
+          <li><strong>Find your match</strong>: describe yourself or what you need — the matcher recommends an element (or a combo) with reasoning per axis.</li>
+          <li><strong>Save your maps</strong>: generated maps auto-save; click <strong>Save</strong> to keep a hand-built one too. Saved maps live under <strong>My maps</strong> in the dropdown.</li>
+        </ul>
+      </section>
+
+      <section class="about-section">
+        <h4>Optional — OpenRouter integration</h4>
+        <p>With an <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter API key</a> (Settings → API key) you can:</p>
+        <ul>
+          <li><strong>✨ Add elements</strong> with positions, icon and bio suggested by AI</li>
+          <li><strong>Generate</strong> entire maps from a topic</li>
+          <li><strong>Find your match</strong> using the current map as candidates</li>
+        </ul>
+        <p class="note small">Your key stays in this browser (<code>localStorage</code>) and is sent only to <code>openrouter.ai</code>.</p>
+      </section>
+
+      <section class="about-section">
+        <h4>Lineage</h4>
+        <p>Inspired by a talk on <strong>team management at PyCon Italia 2026</strong>, and by the visual structure of Erin Meyer's <a href="https://erinmeyer.com/books/the-culture-map/" target="_blank" rel="noopener"><em>The Culture Map</em></a> — which itself stands on <strong>Geert Hofstede's</strong> <em>cultural dimensions theory</em> and, earlier still, <strong>Edward T. Hall's</strong> <em>high-context vs low-context</em> framework from <em>Beyond Culture</em> (1976).</p>
+        <p>We think these sociological dimensions are genuinely useful — but we also think <strong>individual differences matter more than stereotypes</strong>. So here we apply them only to <strong>tech and fiction</strong>, where simplification is the point. We do not believe they fairly describe countries or cultures, which have a thousand nuances and deserve more than a horizontal line.</p>
+      </section>
+
+      <section class="about-section">
+        <h4>The spirit</h4>
+        <p>Don't make real decisions from a 7-axis cartoon — don't hire, fire, promote or pick tools based on this. And don't use it to stereotype real people by anything that defines who they are. That's the opposite of what this is for.</p>
+        <p>For unrestricted experimentation, clone the repo locally and use your own OpenRouter key — then use the output responsibly.</p>
+        <p class="about-credit">Built by <strong>Marco Scarselli</strong>. Vibe-coded. <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener">MIT licensed</a>.</p>
+        <p class="disclaimer-mini">Not affiliated with the authors cited above. Trademarks belong to their owners.</p>
+      </section>
+
+      <div class="dialog-actions">
+        <button value="ok" class="primary">Got it</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="axisDialog" aria-labelledby="axisDialogTitle">
+    <form method="dialog" class="axis-dialog">
+      <div class="axis-dialog-head">
+        <h3 id="axisDialogTitle">Axis</h3>
+        <button class="close-btn" value="close" aria-label="Close">&times;</button>
+      </div>
+      <p class="axis-dialog-desc" id="axisDialogDesc"></p>
+      <div class="axis-poles">
+        <div class="axis-pole-card">
+          <div class="axis-pole-tag" id="axisLeftTag">0</div>
+          <p id="axisLeftDesc"></p>
+        </div>
+        <div class="axis-pole-card">
+          <div class="axis-pole-tag" id="axisRightTag">100</div>
+          <p id="axisRightDesc"></p>
+        </div>
+      </div>
+      <p class="note small">Inspired by Erin Meyer's <em>The Culture Map</em> — which itself stands on Geert Hofstede's <em>cultural dimensions theory</em> and, earlier still, Edward T. Hall's <em>high-context vs low-context</em> framework from <em>Beyond Culture</em> (1976). We think these sociological dimensions are genuinely useful — but we also think <strong>individual differences matter more than stereotypes</strong>. So here we apply them only to <strong>tech and fiction</strong>, where simplification is the point. We do not believe they fairly describe countries or cultures, which have a thousand nuances and deserve more than a horizontal line.</p>
+      <p class="disclaimer-mini">Not affiliated with or endorsed by the authors or publishers cited above.</p>
+    </form>
+  </dialog>
+
+  <dialog id="itemDialog" aria-labelledby="itemDialogName">
+    <form method="dialog" class="item-dialog">
+      <div class="item-dialog-head">
+        <span class="item-dialog-icon" id="itemDialogIcon"></span>
+        <h3 id="itemDialogName">Element</h3>
+        <button class="close-btn" value="close" aria-label="Close">&times;</button>
+      </div>
+      <p class="item-dialog-note" id="itemDialogNote"></p>
+      <p class="axis-legend">Each axis is <strong>0–100</strong>: <strong>0</strong> sits at the left pole, <strong>100</strong> at the right pole, <strong>50</strong> is the middle. The closer pole is shown in bold.</p>
+      <div class="axis-bars" id="itemDialogBars"></div>
+    </form>
+  </dialog>
+
+  <div id="mapBadge" class="map-badge" aria-label="Stereotype disclaimer">
+    <span class="map-badge-tag">STEREOTYPE</span>
+    <span class="map-badge-text">Not for real decisions</span>
+  </div>
+
+  <input type="file" id="importInput" accept="application/json" hidden />
+
+  <script src="presets.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

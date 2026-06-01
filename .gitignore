@@ -1,0 +1,20 @@
+# Reference images kept locally, not in repo
+example_git_ignored.jpg
+
+# Secrets — never commit
+.env
+.env.*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+.claude/
+.zed/
+*.swp
+*~
+
+# Node (defensive, in case tooling is added later)
+node_modules/
