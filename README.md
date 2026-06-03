@@ -1,8 +1,8 @@
 # Workstyle Stereotype Map Builder
 
-A playful experiment for visual reasoning. Place "actors" — coding agents, fictional characters, programming languages, operating systems — on seven behavioral axes, then ask the matcher to recommend what fits you.
+### 👉 [**Try it live — scarsellifi.github.io/Workstyle-Stereotype-Map-Builder**](https://scarsellifi.github.io/Workstyle-Stereotype-Map-Builder/)
 
-**Try it live →** [scarsellifi.github.io/Workstyle-Stereotype-Map-Builder](https://scarsellifi.github.io/Workstyle-Stereotype-Map-Builder/)
+A playful experiment for visual reasoning. Place "actors" — coding agents, fictional characters, programming languages, operating systems — on seven behavioral axes, then ask the matcher to recommend what fits you.
 
 > The word **Stereotype** in the name is the point. The maps are exaggerations meant to spark a conversation, not measurements meant to be true.
 
@@ -22,7 +22,7 @@ xdg-open index.html    # Linux
 open index.html        # macOS
 ```
 
-For AI features (generate / match / ✨ add): in **Settings**, paste an [OpenRouter API key](https://openrouter.ai/keys). The key stays in your browser's `localStorage` and is sent only to `openrouter.ai`.
+**For AI features** (generate / match / ✨ add): open **Settings** and paste an [OpenRouter API key](https://openrouter.ai/keys) (free to create). You can try it with one of the [free models](https://openrouter.ai/models?max_price=0) — no credit required; a one-click **OpenRouter Free** quick pick is available right in Settings. The key is saved in your browser's `localStorage`, scoped to this origin, and is sent only to `openrouter.ai` — it never passes through any server of mine.
 
 ## The 7 axes
 
