@@ -2,6 +2,8 @@
 
 A playful experiment for visual reasoning. Place "actors" — coding agents, fictional characters, programming languages, operating systems — on seven behavioral axes, then ask the matcher to recommend what fits you.
 
+**Try it live →** [scarsellifi.github.io/Workstyle-Stereotype-Map-Builder](https://scarsellifi.github.io/Workstyle-Stereotype-Map-Builder/)
+
 > The word **Stereotype** in the name is the point. The maps are exaggerations meant to spark a conversation, not measurements meant to be true.
 
 ## What it does
@@ -13,7 +15,7 @@ You can also build your own maps from scratch, drag dots to refine, generate map
 
 ## Quickstart
 
-Open `index.html` in a browser. No backend, no build, no dependencies.
+The fastest path is the [live demo](https://scarsellifi.github.io/Workstyle-Stereotype-Map-Builder/). To run locally, open `index.html` in a browser — no backend, no build, no dependencies.
 
 ```bash
 xdg-open index.html    # Linux

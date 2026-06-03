@@ -97,8 +97,14 @@
         <button type="button" class="model-chip" data-model="perplexity/sonar">
           <strong>Sonar</strong><span>web-grounded · current events</span>
         </button>
+        <button type="button" class="model-chip" data-model="openrouter/free">
+          <strong>OpenRouter Free</strong><span>no credit required</span>
+        </button>
       </div>
-      <p class="note">Any OpenRouter model ID works. Your key is saved locally in this browser (<code>localStorage</code>) and sent only to <code>openrouter.ai</code>.</p>
+      <p class="note">
+        Need a key? <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Create one on openrouter.ai</a> — you can also try the <a href="https://openrouter.ai/models?max_price=0" target="_blank" rel="noopener">free models</a> (no credit required).
+      </p>
+      <p class="note small">Your key stays in this browser (<code>localStorage</code>, scoped to this origin) and is sent only to <code>openrouter.ai</code>. It never passes through any server of mine.</p>
       <div class="dialog-actions">
         <button id="saveSettings" value="save" class="primary">Save</button>
         <button value="cancel">Cancel</button>
@@ -186,7 +192,8 @@
           <li><strong>Generate</strong> entire maps from a topic</li>
           <li><strong>Find your match</strong> using the current map as candidates</li>
         </ul>
-        <p class="note small">Your key stays in this browser (<code>localStorage</code>) and is sent only to <code>openrouter.ai</code>.</p>
+        <p class="note small">Tip: you can test it with one of the <a href="https://openrouter.ai/models?max_price=0" target="_blank" rel="noopener">free OpenRouter models</a> — no credit required.</p>
+        <p class="note small">Your key stays in this browser (<code>localStorage</code>, scoped to this origin) and is sent only to <code>openrouter.ai</code>. It never passes through any server of mine.</p>
       </section>
 
       <section class="about-section">
